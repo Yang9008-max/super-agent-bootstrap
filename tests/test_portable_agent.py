@@ -276,5 +276,52 @@ cp "$PORTABLE_AGENT_TEST_ASSETS/super-agent-personal.sh.sha256" "$destination/"
         self.assertFalse((self.home / '.codex/config.toml').exists())
 
 
+class ServerBootstrapTests(unittest.TestCase):
+    stub = BootstrapTests.stub
+
+    def setUp(self):
+        BootstrapTests.setUp(self)
+        self.assets = self.root / 'server assets'
+        self.assets.mkdir()
+        shutil.copyfile(self.bundle, self.assets / 'super-agent-personal.sh')
+        import hashlib
+        digest = hashlib.sha256(self.bundle.read_bytes()).hexdigest()
+        (self.assets / 'super-agent-personal.sh.sha256').write_text(digest + '  super-agent-personal.sh\n')
+        self.env['PORTABLE_AGENT_TEST_ASSETS'] = self.assets.as_posix()
+        self.stub('curl', '''url=''
+destination=''
+while (($#)); do
+  case "$1" in
+    -o) destination="$2"; shift 2 ;;
+    https://*) url="$1"; shift ;;
+    *) shift ;;
+  esac
+done
+cp "$PORTABLE_AGENT_TEST_ASSETS/${url##*/}" "$destination"
+''')
+        self.launcher = self.root / 'server-install.sh'
+        template = (MODULE.parents[1] / 'deploy/portable-agent-server-install.sh').read_text(encoding='utf-8')
+        self.launcher.write_text(template.replace('__BUNDLE_BASE_URL__', 'https://example.test/private-download'), encoding='utf-8', newline='\n')
+
+    def run_launcher(self):
+        command = 'export HOME="$(cd "$1" && pwd)"; export PATH="$(cd "$2" && pwd):$PATH"; shift 2; bash "$@"'
+        return subprocess.run([self.bash, '-c', command, 'server-bootstrap-test', self.home.as_posix(),
+                               self.stubs.as_posix(), self.launcher.as_posix(), '--skip-codex'],
+                              env=self.env, capture_output=True, text=True, encoding='utf-8', errors='replace', timeout=60)
+
+    def test_server_download_without_github(self):
+        result = self.run_launcher()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertTrue((self.home / '.codex/config.toml').is_file())
+
+    def test_server_checksum_failure_does_not_apply(self):
+        with (self.assets / 'super-agent-personal.sh').open('a') as stream:
+            stream.write('\n# corrupted transfer\n')
+        result = self.run_launcher()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('checksum mismatch', result.stderr)
+        self.assertFalse((self.home / '.codex/config.toml').exists())
+
+
 if __name__ == '__main__':
     unittest.main()
