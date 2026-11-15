@@ -17,7 +17,7 @@
 bash super-agent-personal.sh
 ```
 
-安装包自带管理脚本和个人配置，不需要目标机提前安装 Git、Node.js、Python 或克隆本项目。需要 Bash，以及 curl/wget 中的一个；必须能访问下载服务。支持 Linux x86_64、aarch64。首次下载的运行时和 Codex 是否兼容目标发行版，需要在目标机确认；第一版尚未在真实干净 Linux 系统上完成联网安装测试。
+安装包自带管理脚本和个人配置，不需要目标机提前安装 Git、Node.js、Python 或克隆本项目。需要 Bash，以及 curl/wget 中的一个；必须能访问下载服务。支持 Linux x86_64、aarch64。已通过 GitHub Actions 的 Ubuntu 联网安装测试；其他发行版、架构与网络环境仍需在目标机确认。
 
 安装过程使用当前 Linux 用户，不调用 sudo。请以最终使用 Codex 的用户执行。步骤如下：
 
@@ -115,7 +115,9 @@ curl -fsSL https://raw.githubusercontent.com/Yang9008-max/super-agent-bootstrap/
 
 安装器同步 Skills 文件，不自动猜测和安装每个 Skill 的外部应用、硬件驱动、串口工具或交叉编译器。发现 Windows 路径或 `.exe` 引用时，导出报告会提示。Windows 专用 Skill 不会因为文件同步而变成 Linux 版本。
 
-第一版已使用临时用户目录验证配置合并、备份、重复执行、写入失败回滚、路径穿越/符号链接拒绝、安装包损坏检测，以及 Bash 启动与 uv 回退分支。Bash 集成验证在本机 Git Bash 中运行，用替代命令模拟 Linux 和运行时；未安装系统包，也没有更改源电脑的 Codex 配置。
+18 项测试已在本机 Git Bash 和 GitHub Actions Ubuntu 中通过，涵盖配置合并、备份、重复执行、写入失败回滚、路径穿越/符号链接拒绝、安装包校验、Bash 启动、uv 回退以及 GitHub Release 下载流程。Ubuntu 还实际运行官方安装器下载安装 Codex 并验证启动成功。未调用模型推理，也没有更改源电脑的 Codex 配置。
+
+测试记录：https://github.com/Yang9008-max/super-agent-bootstrap/actions/runs/43725744770
 
 ## 官方参考
 

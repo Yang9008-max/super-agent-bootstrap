@@ -1,5 +1,7 @@
 # 一行命令恢复你的 AI 工作环境
 
+[![Linux verification](https://github.com/Yang9008-max/super-agent-bootstrap/actions/workflows/verify.yml/badge.svg)](https://github.com/Yang9008-max/super-agent-bootstrap/actions/workflows/verify.yml)
+
 面向 Linux 的个人 Codex CLI 环境安装器。公开仓库只存安装代码，个人模型、接口地址和 Skills 放在私有仓库的 Release 中。
 
 ## 直接安装
@@ -64,4 +66,4 @@ bash -n install.sh
 
 GitHub Actions 运行 Ubuntu 单元/集成测试，以及在一次性运行器中实际下载安装 Codex 的网络验证。该验证不访问个人配置仓库、不包含 API Key，也不调用模型推理。
 
-????18 ??????Ubuntu ?????????? Codex ???[????](https://github.com/Yang9008-max/super-agent-bootstrap/actions/runs/43725744770)?
+已验证：18 项测试通过，Ubuntu 实际下载、安装和启动 Codex 成功。[测试记录](https://github.com/Yang9008-max/super-agent-bootstrap/actions/runs/43725744770)。
